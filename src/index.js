@@ -3,18 +3,25 @@ import { message } from 'telegraf/filters'
 import { getIndex, updateIndex } from './data.js'
 import { translate } from './lib/translations/index.js'
 import bot from './bot.js'
+import DashAttach from 'dashattach'
 import dotenv from 'dotenv'
 
 dotenv.config()
 
 const { CHAT8787_ID, MODERS_CHAT_ID, MODERS_LOGS_CHAT } = process.env
 
-const log = (text) => {
-    bot.telegram.sendMessage(MODERS_LOGS_CHAT, text)
+const emoji = {
+    views: "👁️‍🗨️",
+    forks: "🌀",
+    fires: "🔥"
 }
 
-bot.telegram.sendMessage(CHAT8787_ID, "Бот запущен")
-bot.telegram.sendMessage(MODERS_CHAT_ID, "Бот запущен")
+const log = (text, parse_mode) => {
+    bot.telegram.sendMessage(MODERS_LOGS_CHAT, text, { parse_mode: parse_mode ? parse_mode : "HTML" })
+}
+
+bot.telegram.sendMessage(CHAT8787_ID, "Бот запущен", { parse_mode: "HTML" })
+bot.telegram.sendMessage(MODERS_CHAT_ID, "Бот запущен", { parse_mode: "HTML" })
 log("Бот запущен")
 
 bot.command('start', async (ctx) => {
@@ -49,11 +56,13 @@ bot.command('help', async (ctx) => {
     ctx.reply(`<b>Команды:</b>
 /info [id] - информация о выбранном пользователе
 /me - ваша информация
-/ban - заблокировать пользователя
-/unban - разблокировать пользователя
-/mute - запретить пользователю писать
-/unmute - разрешить пользователю писать
-/setpermission - изменить права пользователя
+/ban [user] - заблокировать пользователя
+/unban [user] - разблокировать пользователя
+/mute [user] - запретить пользователю писать
+/unmute [user] - разрешить пользователю писать
+/setpermission [user] [permission] [value (true/false строчными)] - изменить права пользователя
+/dashproject [id] - получить проект на <a href="https://dashblocks.org">Dash</a>
+/dashuser [id/username] - получить пользователя на <a href="https://dashblocks.org">Dash</a>
 Исходный код: https://github.com/shaman2016scratch/moders-tg-bot
     `, { parse_mode: "HTML" })
 })
@@ -337,6 +346,68 @@ bot.command('setpermission', async (ctx) => {
             ctx.reply(`Error with set permissions user chat member: ${e.message}`)
             console.error(e)
         }
+    }
+})
+
+bot.command('dashproject', async (ctx) => {
+    const data = await getIndex()
+    if (!Object.keys(data.users).includes(ctx.message.from.id.toString())) {
+        data.users[ctx.message.from.id.toString()] = {
+            id: ctx.message.from.id,
+            username: ctx.message.from.username,
+            firstName: ctx.message.from.first_name,
+            language: "en",
+            joined: new Date(),
+            reputation: 0
+        }
+        await updateIndex(data)
+    }
+    const projectId = ctx.message.text.split(" ")[1]
+    try {
+        const info = {
+            author: await DashAttach.info.projects.getAuthorUsername(projectId),
+            forks: await DashAttach.info.projects.stats.forks(projectId),
+            views: await DashAttach.info.projects.stats.views(projectId),
+            fires: await DashAttach.info.projects.stats.fires(projectId),
+            description: await DashAttach.info.projects.getDescription(projectId),
+            name: await DashAttach.info.projects.getName(projectId),
+            url: await DashAttach.info.projects.getFileURL(projectId)
+        }
+        ctx.reply(`<b>Проект <a href="https://dashblocks.org/#${projectId}">${info.name}</a></b>\n${emoji.views} ${info.views} ${emoji.forks} ${info.forks} ${info.fires}${emoji.fires}\n\n<b>Автор: </b><a href="https://dashblocks.org/user#${info.author}">${info.author}</a>\n<b>Описание: </b>${info.description}\n\nСкачать: ${info.url}`, { parse_mode: "HTML" })
+    } catch (e) {
+        ctx.reply(`Error with get dash project info: ${e.message}`)
+        console.error(e)
+    }
+})
+
+bot.command('dashuser', async (ctx) => {
+    const data = await getIndex()
+    if (!Object.keys(data.users).includes(ctx.message.from.id.toString())) {
+        data.users[ctx.message.from.id.toString()] = {
+            id: ctx.message.from.id,
+            username: ctx.message.from.username,
+            firstName: ctx.message.from.first_name,
+            language: "en",
+            joined: new Date(),
+            reputation: 0
+        }
+        await updateIndex(data)
+    }
+    const userId = ctx.message.text.split(" ")[1]
+    try {
+        const info = {
+            username: await DashAttach.info.users.getUsername(await DashAttach.info.users.getId(userId)),
+            id: await DashAttach.info.users.getId(userId),
+            description: await DashAttach.info.users.getDescription(userId),
+            featured: {
+                id: (await DashAttach.info.users.getRecommendedProject(userId)).id,
+                name: await DashAttach.info.projects.getName((await DashAttach.info.users.getRecommendedProject(userId)).id)
+            }
+        }
+        ctx.reply(`<b>Пользователь <a href="https://dashblocks.org/user#${info.id}">${info.username}</a></b>\n\n<b>Описание: </b>${info.description}\nРекомендуемый проект: <a href="https://dashblocks.org/#${info.featured.id}">${info.featured.name}</a>`, { parse_mode: "HTML" })
+    } catch (e) {
+        ctx.reply(`Error with get dash user info: ${e.message}`)
+        console.error(e)
     }
 })
 
