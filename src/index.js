@@ -3,6 +3,19 @@ import { message } from 'telegraf/filters'
 import { getIndex, updateIndex } from './data.js'
 import { translate } from './lib/translations/index.js'
 import bot from './bot.js'
+import dotenv from 'dotenv'
+
+dotenv.config()
+
+const { CHAT8787_ID, MODERS_CHAT_ID, MODERS_LOGS_CHAT } = process.env
+
+const log = (text) => {
+    bot.telegram.sendMessage(MODERS_LOGS_CHAT, text)
+}
+
+bot.telegram.sendMessage(CHAT8787_ID, "Бот запущен")
+bot.telegram.sendMessage(MODERS_CHAT_ID, "Бот запущен")
+log("Бот запущен")
 
 bot.command('start', async (ctx) => {
     const data = await getIndex()
