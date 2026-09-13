@@ -13,7 +13,9 @@ const { CHAT8787_ID, MODERS_CHAT_ID, MODERS_LOGS_CHAT } = process.env
 const emoji = {
     views: "👁️‍🗨️",
     forks: "🌀",
-    fires: "🔥"
+    fires: "🔥",
+    followers: "👥",
+    following: "👥"
 }
 
 const log = (text, parse_mode) => {
@@ -373,7 +375,7 @@ bot.command('dashproject', async (ctx) => {
             name: await DashAttach.info.projects.getName(projectId),
             url: await DashAttach.info.projects.getFileURL(projectId)
         }
-        ctx.reply(`<b>Проект <a href="https://dashblocks.org/#${projectId}">${info.name}</a></b>\n${emoji.views} ${info.views} ${emoji.forks} ${info.forks} ${info.fires}${emoji.fires}\n\n<b>Автор: </b><a href="https://dashblocks.org/user#${info.author}">${info.author}</a>\n<b>Описание: </b>${info.description}\n\nСкачать: ${info.url}`, { parse_mode: "HTML" })
+        ctx.reply(`<b>Проект <a href="https://dashblocks.org/#${projectId}">${info.name}</a></b>\n${emoji.views}${info.views} ${emoji.forks}${info.forks} ${info.fires}${emoji.fires}\n\n<b>Автор: </b><a href="https://dashblocks.org/user#${info.author}">${info.author}</a>\n<b>Описание: </b>${info.description}\n\nСкачать: ${info.url}`, { parse_mode: "HTML" })
     } catch (e) {
         ctx.reply(`Error with get dash project info: ${e.message}`)
         console.error(e)
@@ -402,9 +404,11 @@ bot.command('dashuser', async (ctx) => {
             featured: {
                 id: (await DashAttach.info.users.getRecommendedProject(userId)).id,
                 name: await DashAttach.info.projects.getName((await DashAttach.info.users.getRecommendedProject(userId)).id)
-            }
+            },
+            followers: await DashAttach.info.users.stats.followers(userId),
+            following: await DashAttach.info.users.stats.following(userId)
         }
-        ctx.reply(`<b>Пользователь <a href="https://dashblocks.org/user#${info.id}">${info.username}</a></b>\n\n<b>Описание: </b>${info.description}\nРекомендуемый проект: <a href="https://dashblocks.org/#${info.featured.id}">${info.featured.name}</a>`, { parse_mode: "HTML" })
+        ctx.reply(`<b>Пользователь <a href="https://dashblocks.org/user#${info.id}">${info.username}</a></b>\n${emoji.followers}${info.followers} подписчиков, ${emoji.following} подписана на ${info.following}\n\n<b>Описание: </b>${info.description}\nРекомендуемый проект: <a href="https://dashblocks.org/#${info.featured.id}">${info.featured.name}</a>`, { parse_mode: "HTML" })
     } catch (e) {
         ctx.reply(`Error with get dash user info: ${e.message}`)
         console.error(e)
