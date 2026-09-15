@@ -65,6 +65,7 @@ bot.command('help', async (ctx) => {
 /setpermission [user] [permission] [value (true/false строчными)] - изменить права пользователя
 /dashproject [id] - получить проект на <a href="https://dashblocks.org">Dash</a>
 /dashuser [id/username] - получить пользователя на <a href="https://dashblocks.org">Dash</a>
+/top - топ пользователей по репутации
 Исходный код: https://github.com/shaman2016scratch/moders-tg-bot
     `, { parse_mode: "HTML" })
 })
@@ -414,6 +415,32 @@ bot.command('dashuser', async (ctx) => {
         console.error(e)
     }
 })
+
+bot.command('top', async (ctx) => {
+    const data = await getIndex()
+    if (!Object.keys(data.users).includes(ctx.message.from.id.toString())) {
+        data.users[ctx.message.from.id.toString()] = {
+            id: ctx.message.from.id,
+            username: ctx.message.from.username,
+            firstName: ctx.message.from.first_name,
+            language: "en",
+            joined: new Date(),
+            reputation: 0
+        }
+        await updateIndex(data)
+    }
+    const userArray = Object.values(data.users)
+    const sortedUsers = userArray.sort((a, b) => b.reputation - a.reputation)
+    const mapTop = sortedUsers.map((element) => { return `${element.username} (${element.reputation})` })
+    ctx.reply(`<b>Топ пользователей по репутации:</b>
+1. ${mapTop[0]}
+2. ${mapTop[1]}
+3. ${mapTop[2]}
+4. ${mapTop[3]}
+5. ${mapTop[4]}
+    `, { parse_mode: "HTML" })
+})
+
 
 bot.launch()
 
