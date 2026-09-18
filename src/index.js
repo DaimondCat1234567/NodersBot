@@ -136,11 +136,15 @@ bot.hears('+', async (ctx) => {
             }
             await updateIndex(data)
         }
-        data.users[ctx.message.reply_to_message.from.id.toString()].reputation++
-        await updateIndex(data)
-        const sendUser = (ctx.message.from.username ? `@${ctx.message.from.username}` : `tg://user?id=${ctx.message.from.id}`)
-        const targetUser = (ctx.message.reply_to_message.from.username ? `@${ctx.message.reply_to_message.from.username}` : `tg://user?id=${ctx.message.reply_to_message.from.id}`)
-        ctx.reply(`${sendUser} увеличил репутацию ${targetUser}.\nНовая репутация: ${data.users[ctx.message.reply_to_message.from.id.toString()].reputation}`, { parse_mode: "HTML" })
+        if (ctx.message.reply_to_message.from.id !== ctx.message.from.id) {
+            data.users[ctx.message.reply_to_message.from.id.toString()].reputation++
+            await updateIndex(data)
+            const sendUser = (ctx.message.from.username ? `@${ctx.message.from.username}` : `tg://user?id=${ctx.message.from.id}`)
+            const targetUser = (ctx.message.reply_to_message.from.username ? `@${ctx.message.reply_to_message.from.username}` : `tg://user?id=${ctx.message.reply_to_message.from.id}`)
+            ctx.reply(`${sendUser} увеличил репутацию ${targetUser}.\nНовая репутация: ${data.users[ctx.message.reply_to_message.from.id.toString()].reputation}`, { parse_mode: "HTML" })
+        } else {
+            ctx.reply("Жулик, так не честно!")
+        }
     }
 })
 
