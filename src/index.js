@@ -503,6 +503,36 @@ bot.command('ref', async (ctx) => {
     `, { parse_mode: "HTML" })
 })
 
+bot.command('users', async (ctx) => {
+    const data = await getIndex()
+    if (!Object.keys(data.users).includes(ctx.message.from.id.toString())) {
+        data.users[ctx.message.from.id.toString()] = {
+            id: ctx.message.from.id,
+            username: ctx.message.from.username,
+            firstName: ctx.message.from.first_name,
+            language: "en",
+            joined: new Date(),
+            reputation: 0
+        }
+        await updateIndex(data)
+    }
+    const userArray = Object.values(data.users)
+    const sortedUsers = userArray.toSorted((a, b) => b.reputation - a.reputation)
+    const mapTop = sortedUsers.map((element) => { return `<a href="https://t.me/${element.username}">${element.username}</a> (${element.reputation})` })
+    if (data.admins.includes(ctx.message.from.id)) ctx.reply(`<b>Пользователи:</b>
+1. ${mapTop[0]}
+2. ${mapTop[1]}
+3. ${mapTop[2]}
+4. ${mapTop[3]}
+5. ${mapTop[4]}
+6. ${mapTop[5]}
+7. ${mapTop[6]}
+8. ${mapTop[7]}
+9. ${mapTop[8]}
+10. ${mapTop[9]}
+    `, { parse_mode: "HTML" })
+})
+
 bot.launch()
 
 process.once('SIGINT', () => bot.stop('SIGINT'))
