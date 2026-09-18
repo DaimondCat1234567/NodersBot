@@ -15,7 +15,10 @@ const emoji = {
     forks: "🌀",
     fires: "🔥",
     followers: "👥",
-    following: "👥"
+    following: "👥",
+    admin: "🛡️",
+    king: "👑",
+    dollar: "💲"
 }
 
 const log = (text, parse_mode) => {
@@ -417,6 +420,7 @@ bot.command('dashuser', async (ctx) => {
         const info = {
             username: await DashAttach.info.users.getUsername(await DashAttach.info.users.getId(userId)),
             id: await DashAttach.info.users.getId(userId),
+            role: await DashAttach.info.users.getRole(userId),
             description: await DashAttach.info.users.getDescription(userId),
             featured: {
                 id: (await DashAttach.info.users.getRecommendedProject(userId)).id,
@@ -425,7 +429,18 @@ bot.command('dashuser', async (ctx) => {
             followers: await DashAttach.info.users.stats.followers(userId),
             following: await DashAttach.info.users.stats.following(userId)
         }
-        ctx.reply(`<b>Пользователь <a href="https://dashblocks.org/user#${info.id}">${info.username}</a></b>\n${emoji.followers}${info.followers} подписчиков, ${emoji.following} подписана на ${info.following}\n\n<b>Описание: </b>${info.description}\nРекомендуемый проект: <a href="https://dashblocks.org/#${info.featured.id}">${info.featured.name}</a>`, { parse_mode: "HTML" })
+        const formatRole = (info.role === "dasher") ? "Дэшер" : (
+            (info.role === "dashteam") ? `${emoji.admin}Команда Dash${emoji.king}` : (
+                (info.role === "dasher+") ? "Дэшер+" : (
+                    (info.role === "dash-supporter") ? `Подписчик Dash${emoji.dollar}` : info.role
+                )
+            ))
+        ctx.reply(`
+<b>Пользователь <a href="https://dashblocks.org/user#${info.id}">${info.username}</a></b> <b>${formatRole}</b>
+${emoji.followers}${info.followers} подписчиков, ${emoji.following} подписана на ${info.following}\n
+<b>Описание: </b>${info.description}
+<b>Рекомендуемый проект</b>: <a href="https://dashblocks.org/#${info.featured.id}">${info.featured.name}</a>
+        `, { parse_mode: "HTML" })
     } catch (e) {
         ctx.reply(`Error with get dash user info: ${e.message}`)
         console.error(e)
