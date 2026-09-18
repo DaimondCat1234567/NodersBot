@@ -11,8 +11,8 @@ dotenv.config()
 const { CHAT8787_ID, MODERS_CHAT_ID, MODERS_LOGS_CHAT } = process.env
 
 const emoji = {
-    views: "👁️‍🗨️",
-    forks: "🌀",
+    views: "👁",
+    forks: "🔌",
     fires: "🔥",
     followers: "👥",
     following: "👥"
@@ -22,9 +22,8 @@ const log = (text, parse_mode) => {
     bot.telegram.sendMessage(MODERS_LOGS_CHAT, text, { parse_mode: parse_mode ? parse_mode : "HTML" })
 }
 
-bot.telegram.sendMessage(CHAT8787_ID, "Бот запущен", { parse_mode: "HTML" })
-bot.telegram.sendMessage(MODERS_CHAT_ID, "Бот запущен", { parse_mode: "HTML" })
-log("Бот запущен")
+bot.telegram.sendMessage(CHATID, "Success!", { parse_mode: "HTML" })
+log("SYSTEM:NODERSBOT STARTED. VERSION 1.0")
 
 bot.command('start', async (ctx) => {
     const data = await getIndex()
@@ -39,8 +38,13 @@ bot.command('start', async (ctx) => {
         }
         await updateIndex(data)
     }
-    await ctx.reply(`Добро пожаловать в Модерс Бота!
-Отправьте /help для получения помощи по боту.
+    await ctx.reply(`О, привет)
+    Я-Нодерс (Noders). Я немного умный модератор чатов, а еще помощник с Дешем!
+    Помощь - /help
+    ----------------------
+    Oh, hello!
+    I am Noders, a little smart chat moderator, and also a Dash helper!
+    Help - /help
     `, { parse_mode: "HTML" })
     if (ctx.message.text.split(" ")[1].split("=")[0] === "ref") {
         if (!data.users[ctx.message.from.id.toString()].ref) {
@@ -71,18 +75,18 @@ bot.command('help', async (ctx) => {
         }
         await updateIndex(data)
     }
-    ctx.reply(`<b>Команды:</b>
+    ctx.reply(`<b>Привет:</b>
 /info [id] - информация о выбранном пользователе
 /me - ваша информация
 /ban [user] - заблокировать пользователя
 /unban [user] - разблокировать пользователя
 /mute [user] - запретить пользователю писать
 /unmute [user] - разрешить пользователю писать
-/setpermission [user] [permission] [value (true/false строчными)] - изменить права пользователя
+/setpermission [user] [permission] [true/fals] - изменить права пользователя
 /dashproject [id] - получить проект на <a href="https://dashblocks.org">Dash</a>
 /dashuser [id/username] - получить пользователя на <a href="https://dashblocks.org">Dash</a>
 /top - топ пользователей по репутации
-Исходный код: https://github.com/shaman2016scratch/moders-tg-bot
+Исходный код: ССЫЛКА СКОРО
     `, { parse_mode: "HTML" })
 })
 
@@ -102,9 +106,10 @@ bot.command('info', async (ctx) => {
     const userId = ctx.message.text.replace("/info ", "")
     const user = data.users[userId.toString()]
     if (user) {
-        ctx.reply(`<b>Информация о пользователе</b>\nID: ${user.id || 0}\nUsername: ${user.username}\nИмя: ${user.firstName}\nВ боте с ${new Date(user.joined)}\nРепутация: ${user.reputation}`, { parse_mode: "HTML" })
+        ctx.reply(`<b>ℹ️ Информация о пользователе</b>\nID: ${user.id || 0}\nUsername: ${user.username}\nИмя: ${user.firstName}\nВ боте с ${new Date(user.joined)}\nРепутация: ${user.reputation}`, { parse_mode: "HTML" })
     } else {
-        ctx.reply(`Пользователя не существует`)
+        ctx.reply(`😩 Упс!
+        Пользователя с ID ${userId.toString || ['пустая строка']}`)
     }
 })
 
@@ -192,7 +197,7 @@ bot.command('me', async (ctx) => {
     ctx.reply(`<b>Информация о пользователе</b>\nID: ${user.id || 0}\nUsername: ${user.username}\nИмя: ${user.firstName}\nВ боте с ${new Date(user.joined)}\nРепутация: ${user.reputation}`, { parse_mode: "HTML" })
 })
 
-bot.command('addbotadmin', async (ctx) => {
+bot.command('newadmin', async (ctx) => {
     const data = await getIndex()
     if (!Object.keys(data.users).includes(ctx.message.from.id.toString())) {
         data.users[ctx.message.from.id.toString()] = {
@@ -212,7 +217,7 @@ bot.command('addbotadmin', async (ctx) => {
     }
 })
 
-bot.command('setreputation', async (ctx) => {
+bot.command('reputation set', async (ctx) => {
     const data = await getIndex()
     if (!Object.keys(data.users).includes(ctx.message.from.id.toString())) {
         data.users[ctx.message.from.id.toString()] = {
