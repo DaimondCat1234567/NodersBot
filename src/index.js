@@ -431,7 +431,7 @@ bot.command('top', async (ctx) => {
     }
     const userArray = Object.values(data.users)
     const sortedUsers = userArray.toSorted((a, b) => b.reputation - a.reputation)
-    const mapTop = sortedUsers.map((element) => { return `${element.username} (${element.reputation})` })
+    const mapTop = sortedUsers.map((element) => { return `<a href="https://t.me/${element.username}">${element.username}</a> (${element.reputation})` })
     ctx.reply(`<b>Топ пользователей по репутации:</b>
 1. ${mapTop[0]}
 2. ${mapTop[1]}
