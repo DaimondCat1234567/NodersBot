@@ -39,7 +39,23 @@ bot.command('start', async (ctx) => {
         }
         await updateIndex(data)
     }
-    ctx.reply("Добро пожаловать в Модерс Бота!\nОтправьте /help для получения помощи по боту.", { parse_mode: "HTML" })
+    await ctx.reply(`Добро пожаловать в Модерс Бота!
+Отправьте /help для получения помощи по боту.
+    `, { parse_mode: "HTML" })
+    if (ctx.message.text.split(" ")[1].split("=")[0] === "ref") {
+        if (!data.users[ctx.message.from.id.toString()].ref) {
+            const refer = ctx.message.text.split(" ")[1].split("=")[1]
+            if (Object.keys(data.referal_system).includes(refer)) {
+                data.users[ctx.message.from.id.toString()].ref = refer
+                data.referal_system[refer].activates.push({ author: ctx.message.from.id, at: new Date() })
+                await updateIndex(data)
+            } else {
+                ctx.reply("Рефералки нету")
+            }
+        } else {
+            ctx.reply("Ты уже подключен")
+        }
+    }
 })
 
 bot.command('help', async (ctx) => {
@@ -441,6 +457,36 @@ bot.command('top', async (ctx) => {
     `, { parse_mode: "HTML" })
 })
 
+bot.command('ref', async (ctx) => {
+    const data = await getIndex()
+    if (!Object.keys(data.users).includes(ctx.message.from.id.toString())) {
+        data.users[ctx.message.from.id.toString()] = {
+            id: ctx.message.from.id,
+            username: ctx.message.from.username,
+            firstName: ctx.message.from.first_name,
+            language: "en",
+            joined: new Date(),
+            reputation: 0
+        }
+        await updateIndex(data)
+    }
+    if (!Object.keys(data.referal_system).includes(ctx.message.from.id.toString())) {
+        data.referal_system[ctx.message.from.id.toString()] = {
+            activates: [],
+            author: ctx.message.from.id,
+            created: new Date(),
+            last_used: new Date()
+        }
+        await updateIndex(data)
+    }
+    const botInfo = await bot.telegram.getMe()
+    const botUsername = botInfo.username
+    await ctx.reply(`Реферальная система
+Количество реферальщиков: ${data.referal_system[ctx.message.from.id.toString()].activates.lenght}
+
+Твоя ссылка: https://t.me/${botUsername}?start=ref=${ctx.message.from.id}
+    `, { parse_mode: "HTML" })
+})
 
 bot.launch()
 
