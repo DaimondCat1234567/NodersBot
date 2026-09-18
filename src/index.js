@@ -136,7 +136,7 @@ bot.hears('+', async (ctx) => {
             }
             await updateIndex(data)
         }
-        if (ctx.message.reply_to_message.from.id !== ctx.message.from.id) {
+        if (ctx.message.reply_to_message.from.id !== ctx.message.from.id || data.admins.includes(ctx.message.from.id)) {
             data.users[ctx.message.reply_to_message.from.id.toString()].reputation++
             await updateIndex(data)
             const sendUser = (ctx.message.from.username ? `@${ctx.message.from.username}` : `tg://user?id=${ctx.message.from.id}`)
