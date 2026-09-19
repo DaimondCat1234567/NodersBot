@@ -29,7 +29,6 @@ const logPro = (text, parse_mode) => {
     bot.telegram.sendMessage(6049462351, text, { parse_mode: parse_mode ? parse_mode : "HTML" })
 }
 
-
 bot.telegram.sendMessage(CHAT8787_ID, "Бот запущен", { parse_mode: "HTML" })
 bot.telegram.sendMessage(MODERS_CHAT_ID, "Бот запущен", { parse_mode: "HTML" })
 log("Бот запущен")
