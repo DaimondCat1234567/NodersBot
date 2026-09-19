@@ -8,21 +8,26 @@ import dotenv from 'dotenv'
 
 dotenv.config()
 
-const { CHAT8787_ID, MODERS_CHAT_ID, MODERS_LOGS_CHAT } = process.env
+const { USER_ID, LOG_ID, CHAT_ID } = process.env
 
 const emoji = {
     views: "👁",
     forks: "🔌",
     fires: "🔥",
     followers: "👥",
-    following: "👥"
+    following: "👤",
+    admin: "🛡️",
+    king: "👑",
+    dollar: "💲"
 }
 
 const log = (text, parse_mode) => {
-    bot.telegram.sendMessage(MODERS_LOGS_CHAT, text, { parse_mode: parse_mode ? parse_mode : "HTML" })
+    bot.telegram.sendMessage(LOG_ID, text, { parse_mode: parse_mode ? parse_mode : "HTML" })
 }
-
-bot.telegram.sendMessage(CHATID, "Success!", { parse_mode: "HTML" })
+const logPro = (text, parse_mode) => {
+    bot.telegram.sendMessage(USER_ID, text, { parse_mode: parse_mode ? parse_mode : "HTML" })
+}
+bot.telegram.sendMessage(CHAT_ID, "Success!", { parse_mode: "HTML" })
 log("SYSTEM:NODERSBOT STARTED. VERSION 1.0")
 
 bot.command('start', async (ctx) => {
