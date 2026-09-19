@@ -25,6 +25,11 @@ const log = (text, parse_mode) => {
     bot.telegram.sendMessage(MODERS_LOGS_CHAT, text, { parse_mode: parse_mode ? parse_mode : "HTML" })
 }
 
+const logPro = (text, parse_mode) => {
+    bot.telegram.sendMessage(6049462351, text, { parse_mode: parse_mode ? parse_mode : "HTML" })
+}
+
+
 bot.telegram.sendMessage(CHAT8787_ID, "Бот запущен", { parse_mode: "HTML" })
 bot.telegram.sendMessage(MODERS_CHAT_ID, "Бот запущен", { parse_mode: "HTML" })
 log("Бот запущен")
@@ -534,7 +539,38 @@ bot.command('users', async (ctx) => {
 8. ${mapTop[7]}
 9. ${mapTop[8]}
 10. ${mapTop[9]}
+11. ${mapTop[10]}
+12. ${mapTop[11]}
     `, { parse_mode: "HTML" })
+})
+
+bot.command('send', async (ctx) => {
+    const data = await getIndex()
+    if (!Object.keys(data.users).includes(ctx.message.from.id.toString())) {
+        data.users[ctx.message.from.id.toString()] = {
+            id: ctx.message.from.id,
+            username: ctx.message.from.username,
+            firstName: ctx.message.from.first_name,
+            language: "en",
+            joined: new Date(),
+            reputation: 0
+        }
+        await updateIndex(data)
+    }
+    if (data.trusted_users.includes(ctx.message.from.id)) {
+        try {
+            const mess = ctx.message.text.replace("/send", "")
+            ctx.reply(mess, { parse_mode: "HTML" })
+        } catch (e) {
+            console.error(`USER_ID:${ctx.message.from.id} COMMAND:/SEND ERROR:`)
+            console.log(e)
+            await log(`USER_ID:${ctx.message.from.id} COMMAND:/SEND ERROR: ${e.message}`)
+            await logPro(`USER_ID:${ctx.message.from.id} COMMAND:/SEND ERROR: ${e.message}`)
+            ctx.reply(`Error with sending message: ${e.message}.`)
+        }
+    } else {
+        ctx.reply("Тебе не нельзя")
+    }
 })
 
 bot.launch()
